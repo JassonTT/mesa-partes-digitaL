@@ -51,3 +51,22 @@ def es_asunto_valido(asunto):
     """Asunto entre 5 y 120 caracteres, sin el separador de archivo '|'."""
     asunto = asunto.strip()
     return 5 <= len(asunto) <= 120 and "|" not in asunto
+
+
+# Catálogo cerrado de tipos de trámite (no se aceptan tipos inexistentes)
+TIPOS_TRAMITE = ["Licencia de funcionamiento", "Constancia", "Reclamo",
+                 "Solicitud de información", "Pago de tributos", "Otros"]
+
+
+def normalizar_tipo(tipo):
+    """Devuelve el tipo del catálogo (con su escritura oficial) o '' si no existe."""
+    t = tipo.strip().lower()
+    for oficial in TIPOS_TRAMITE:
+        if oficial.lower() == t:
+            return oficial
+    return ""
+
+
+def es_tipo_valido(tipo):
+    """Un tipo es válido solo si pertenece al catálogo cerrado."""
+    return normalizar_tipo(tipo) != ""
