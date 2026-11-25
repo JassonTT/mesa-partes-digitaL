@@ -2,19 +2,20 @@
 import os
 
 SEP = "|"
+CAMPOS = 6  # codigo|dni|nombre|tipo|asunto|fecha
 
 
 def nueva_base():
     """Arreglos paralelos: la posición i describe un mismo expediente."""
-    return {"codigos": [], "dnis": [], "nombres": [], "asuntos": [], "fechas": []}
+    return {"codigos": [], "dnis": [], "nombres": [], "tipos": [], "asuntos": [], "fechas": []}
 
 
 def guardar(base, ruta):
-    """Guarda cada expediente como una línea CODIGO|DNI|NOMBRE|ASUNTO|FECHA."""
+    """Guarda cada expediente como una línea CODIGO|DNI|NOMBRE|TIPO|ASUNTO|FECHA."""
     with open(ruta, "w", encoding="utf-8") as f:
         for i in range(len(base["codigos"])):
             campos = [base["codigos"][i], base["dnis"][i], base["nombres"][i],
-                      base["asuntos"][i], base["fechas"][i]]
+                      base["tipos"][i], base["asuntos"][i], base["fechas"][i]]
             f.write(SEP.join(campos) + "\n")
 
 
@@ -30,7 +31,7 @@ def cargar(ruta):
             if linea == "":
                 continue
             campos = linea.split(SEP)
-            if len(campos) != 5:
+            if len(campos) != CAMPOS:
                 omitidas += 1
                 continue
             for clave, valor in zip(base.keys(), campos):

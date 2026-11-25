@@ -1,6 +1,6 @@
 """Módulo de lógica de expedientes: registrar, buscar y ordenar."""
-from validaciones import (es_dni_valido, es_fecha_valida,
-                          es_nombre_valido, es_asunto_valido)
+from validaciones import (es_dni_valido, es_fecha_valida, es_nombre_valido,
+                          es_asunto_valido, normalizar_tipo)
 
 
 def generar_codigo(base, anio):
@@ -13,13 +13,16 @@ def generar_codigo(base, anio):
     return prefijo + str(mayor + 1).zfill(4)
 
 
-def registrar(base, dni, nombre, asunto, fecha):
+def registrar(base, dni, nombre, tipo, asunto, fecha):
     """Valida y registra. Devuelve (ok, mensaje, codigo)."""
     dni, nombre, asunto, fecha = dni.strip(), nombre.strip(), asunto.strip(), fecha.strip()
+    tipo = normalizar_tipo(tipo)
     if not es_dni_valido(dni):
         return False, "DNI inválido: deben ser 8 dígitos.", ""
     if not es_nombre_valido(nombre):
         return False, "Nombre inválido: mínimo dos palabras, solo letras.", ""
+    if tipo == "":
+        return False, "Tipo de trámite inexistente: elija uno del catálogo.", ""
     if not es_asunto_valido(asunto):
         return False, "Asunto inválido: 5 a 120 caracteres, sin '|'.", ""
     if not es_fecha_valida(fecha):
@@ -32,6 +35,7 @@ def registrar(base, dni, nombre, asunto, fecha):
     base["codigos"].append(codigo)
     base["dnis"].append(dni)
     base["nombres"].append(nombre.upper())
+    base["tipos"].append(tipo)
     base["asuntos"].append(asunto)
     base["fechas"].append(fecha)
     return True, "Expediente registrado.", codigo
@@ -43,6 +47,15 @@ def buscar_secuencial(base, codigo):
         if base["codigos"][i] == codigo:
             return i
     return -1
+
+
+def buscar_por_dni(base, dni):
+    """Búsqueda lineal O(n) por DNI; devuelve la lista de posiciones (puede ser vacía)."""
+    posiciones = []
+    for i in range(len(base["dnis"])):
+        if base["dnis"][i] == dni:
+            posiciones.append(i)
+    return posiciones
 
 
 def ordenar_por_codigo(base):
@@ -75,4 +88,4 @@ def buscar_binaria(base, codigo):
 
 def formatear(base, i):
     return (base["codigos"][i] + " | " + base["fechas"][i] + " | DNI " + base["dnis"][i]
-            + " | " + base["nombres"][i] + " | " + base["asuntos"][i])
+            + " | " + base["nombres"][i] + " | " + base["tipos"][i] + " | " + base["asuntos"][i])
